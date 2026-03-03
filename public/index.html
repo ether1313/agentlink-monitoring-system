@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NS Domain Link Monitoring</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <h1>Link Status Control Panel</h1>
+        <p class="subtitle">Main dashboard for tracking link health.</p>
+      </header>
+
+      <section id="down-alert" class="alert hidden">
+        <strong>Alert:</strong> One or more agent links are down.
+      </section>
+
+      <section class="stats">
+        <div class="card">
+          <h3>Total Links</h3>
+          <p id="total-links">0</p>
+        </div>
+        <div class="card">
+          <h3>Healthy</h3>
+          <p id="healthy-links">0</p>
+        </div>
+        <div class="card">
+          <h3>Down</h3>
+          <p id="down-links">0</p>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h2>Add Link</h2>
+        <form id="add-link-form">
+          <label>
+            URLs (one per line)
+            <textarea
+              id="new-urls"
+              rows="5"
+              placeholder="https://example.com/a&#10;https://example.com/b&#10;https://example.com/c"
+              required
+            ></textarea>
+          </label>
+          <div class="form-row">
+            <label>
+              Remarks
+              <input type="text" id="new-note" placeholder="Campaign note" />
+            </label>
+            <button type="submit">Add Links</button>
+          </div>
+        </form>
+      </section>
+
+      <section>
+        <h2>Links</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>URL</th>
+              <th>Note</th>
+              <th>Status</th>
+              <th>Last Checked</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="links-table-body"></tbody>
+        </table>
+        <div class="pagination" id="links-pagination">
+          <label for="page-size">
+            Rows per page
+            <select id="page-size">
+              <option value="10" selected>10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+            </select>
+          </label>
+          <div class="pager">
+            <button type="button" id="page-prev">Prev</button>
+            <span class="pager-info" id="page-info">Page 1 / 1</span>
+            <button type="button" id="page-next">Next</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <audio id="alarm-audio" src="/alarm.mp3" preload="auto"></audio>
+    <div id="toast" class="toast hidden" role="status" aria-live="polite">Marked as healthy</div>
+    <script src="/app.js"></script>
+  </body>
+</html>
