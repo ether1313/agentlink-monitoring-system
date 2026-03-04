@@ -9,6 +9,15 @@ const app = express();
 const PORT = Number(process.env.PORT || 3000);
 const URL_PROBE_TIMEOUT_MS = Number(process.env.URL_PROBE_TIMEOUT_MS || 6000);
 
+const LINK_CATEGORIES = [
+  'ipay9', 'kingbet9', 'bigpay77', 'me99', 'rolex9', 'gucci9', 'bybid9',
+  'mrbean9', 'pkm9', 'queen13', 'micky9', 'winnie777', 'ace96au'
+];
+
+function isValidCategory(value) {
+  return value && LINK_CATEGORIES.includes(String(value).toLowerCase());
+}
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -78,9 +87,28 @@ app.get('/health', (_req, res) => {
   res.json({ ok: true });
 });
 
-app.get('/links', async (_req, res) => {
+app.get('/links', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM links ORDER BY id DESC');
+    const category = req.query.category;
+    const status = req.query.status;
+
+    let query = 'SELECT * FROM links WHERE 1=1';
+    const params = [];
+    let paramIndex = 1;
+
+    if (category && category !== 'all') {
+      query += ` AND category = $${paramIndex}`;
+      params.push(category);
+      paramIndex += 1;
+    }
+    if (status && status !== 'all' && ['healthy', 'down', 'warning', 'unknown'].includes(status)) {
+      query += ` AND status = $${paramIndex}`;
+      params.push(status);
+      paramIndex += 1;
+    }
+
+    query += ' ORDER BY id DESC';
+    const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (error) {
     console.error('GET /links failed:', error);
@@ -88,11 +116,18 @@ app.get('/links', async (_req, res) => {
   }
 });
 
+app.get('/links/categories', (_req, res) => {
+  res.json(LINK_CATEGORIES);
+});
+
 app.post('/links', async (req, res) => {
-  const { url, note } = req.body || {};
+  const { url, note, category } = req.body || {};
 
   if (!url) {
     return res.status(400).json({ error: 'url is required' });
+  }
+  if (!isValidCategory(category)) {
+    return res.status(400).json({ error: 'category is required and must be one of: ' + LINK_CATEGORIES.join(', ') });
   }
 
   const resolved = await resolvePreferredUrl(url);
@@ -108,12 +143,12 @@ app.post('/links', async (req, res) => {
   try {
     const result = await pool.query(
       `
-      INSERT INTO links (url, note, status)
-      VALUES ($1, $2, $3)
+      INSERT INTO links (url, note, category, status)
+      VALUES ($1, $2, $3, $4)
       ON CONFLICT (url) DO NOTHING
       RETURNING *
       `,
-      [resolved.url, note || null, 'unknown']
+      [resolved.url, note || null, category, 'unknown']
     );
 
     if (result.rows.length === 0) {
@@ -128,10 +163,13 @@ app.post('/links', async (req, res) => {
 });
 
 app.post('/links/bulk', async (req, res) => {
-  const { urls, note } = req.body || {};
+  const { urls, note, category } = req.body || {};
 
   if (!Array.isArray(urls)) {
     return res.status(400).json({ error: 'urls must be an array' });
+  }
+  if (!isValidCategory(category)) {
+    return res.status(400).json({ error: 'category is required and must be one of: ' + LINK_CATEGORIES.join(', ') });
   }
 
   const cleanedUrls = [...new Set(urls.map((item) => String(item || '').trim()).filter(Boolean))];
@@ -171,13 +209,13 @@ app.post('/links/bulk', async (req, res) => {
   try {
     const result = await pool.query(
       `
-      INSERT INTO links (url, note, status)
-      SELECT input.url, $2, 'unknown'
+      INSERT INTO links (url, note, category, status)
+      SELECT input.url, $2, $3, 'unknown'
       FROM unnest($1::text[]) AS input(url)
       ON CONFLICT (url) DO NOTHING
       RETURNING *
       `,
-      [dedupedResolvedUrls, note || null]
+      [dedupedResolvedUrls, note || null, category]
     );
 
     const created = result.rows.length;
@@ -198,7 +236,7 @@ app.post('/links/bulk', async (req, res) => {
 
 app.put('/links/:id', async (req, res) => {
   const id = Number(req.params.id);
-  const { url, note } = req.body || {};
+  const { url, note, category } = req.body || {};
 
   if (!Number.isInteger(id)) {
     return res.status(400).json({ error: 'Invalid link id' });
@@ -207,17 +245,21 @@ app.put('/links/:id', async (req, res) => {
   if (!url) {
     return res.status(400).json({ error: 'url is required' });
   }
+  if (category !== undefined && !isValidCategory(category)) {
+    return res.status(400).json({ error: 'category must be one of: ' + LINK_CATEGORIES.join(', ') });
+  }
 
   try {
     const result = await pool.query(
       `
       UPDATE links
       SET url = $1,
-          note = $2
+          note = $2,
+          category = COALESCE($4, category)
       WHERE id = $3
       RETURNING *
       `,
-      [url, note || null, id]
+      [url, note || null, id, category || null]
     );
 
     if (result.rows.length === 0) {

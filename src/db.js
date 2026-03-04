@@ -63,6 +63,11 @@ async function initDb() {
     ADD COLUMN IF NOT EXISTS consecutive_failures INTEGER DEFAULT 0;
   `;
 
+  const addCategoryColumnQuery = `
+    ALTER TABLE links
+    ADD COLUMN IF NOT EXISTS category TEXT;
+  `;
+
   const dedupeQuery = `
     WITH ranked AS (
       SELECT
@@ -85,6 +90,7 @@ async function initDb() {
 
   await pool.query(createTableQuery);
   await pool.query(addConsecutiveFailuresColumnQuery);
+  await pool.query(addCategoryColumnQuery);
   await pool.query(dedupeQuery);
   await pool.query(createUniqueIndexQuery);
 }

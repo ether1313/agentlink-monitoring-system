@@ -6,12 +6,18 @@
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "studio": "prisma studio",
+    "db:view": "node scripts/view-links.js"
   },
   "engines": {
     "node": ">=18"
   },
+  "devDependencies": {
+    "prisma": "^5.22.0"
+  },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "node-cron": "^3.0.3",

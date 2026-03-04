@@ -42,6 +42,7 @@ h2,
 h3 {
   margin-top: 0;
   color: #123670;
+  font-weight: 600;
 }
 
 header {
@@ -56,7 +57,7 @@ header {
 header h1 {
   margin-bottom: 8px;
   font-size: 1.7rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .subtitle {
@@ -75,7 +76,11 @@ header h1 {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
+}
+
+#remarks-row.hidden {
+  display: none !important;
 }
 
 .stats {
@@ -96,13 +101,13 @@ header h1 {
 .card h3 {
   color: #2a4f88;
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .card p {
   margin: 8px 0 0;
   font-size: 1.85rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--blue);
 }
 
@@ -133,10 +138,55 @@ form {
   gap: 10px;
 }
 
+.checkbox-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 12px;
+}
+
+.filters label {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filters select {
+  min-width: 140px;
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+}
+
+#new-category {
+  min-width: 160px;
+  padding: 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: #fbfdff;
+  color: var(--text);
+  font: inherit;
+}
+
 label {
   display: flex;
   flex-direction: column;
-  font-weight: 600;
+  font-weight: 500;
   gap: 6px;
   color: #1f3d6d;
 }
@@ -190,7 +240,7 @@ button {
   background: linear-gradient(180deg, #2f76ff, #1f63ff);
   color: white;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
   transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
 }
 
@@ -222,10 +272,72 @@ button.checked:hover {
   box-shadow: 0 8px 16px rgba(15, 159, 117, 0.2);
 }
 
+button.edit {
+  background: linear-gradient(180deg, #5b6b8a, #4a5a78);
+}
+
+button.edit:hover {
+  background: linear-gradient(180deg, #6a7a99, #5b6b8a);
+  box-shadow: 0 8px 16px rgba(74, 90, 120, 0.2);
+}
+
 .action-group {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  background: rgba(15, 36, 64, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.2);
+}
+
+.modal h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.modal-actions button[type="button"] {
+  background: #e8ecf4;
+  color: #2a4f88;
+}
+
+.modal-actions button[type="button"]:hover {
+  background: #dce2ef;
+  box-shadow: none;
 }
 
 .toast {
@@ -321,6 +433,7 @@ thead th {
   background: linear-gradient(180deg, #f7faff, #eef4ff);
   color: #274f89;
   font-size: 0.84rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.45px;
 }
@@ -350,7 +463,7 @@ td a:hover {
 }
 
 .status-badge {
-  font-weight: 700;
+  font-weight: 600;
   text-transform: capitalize;
   display: inline-flex;
   align-items: center;
@@ -484,7 +597,7 @@ section > h2 {
     letter-spacing: 0.3px;
     text-transform: uppercase;
     color: #6077a0;
-    font-weight: 700;
+    font-weight: 600;
   }
 
   .status-cell {
@@ -495,14 +608,21 @@ section > h2 {
     width: fit-content;
   }
 
+  td[data-label="Actions"] {
+    grid-template-columns: 96px 1fr;
+  }
+
   td[data-label="Actions"] button {
-    width: 100%;
+    width: auto;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    min-height: 36px;
   }
 
   .action-group {
-    width: 100%;
-    display: grid;
-    gap: 8px;
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   .pagination {

@@ -10,8 +10,21 @@ const pagePrevEl = document.getElementById('page-prev');
 const pageNextEl = document.getElementById('page-next');
 const pageInfoEl = document.getElementById('page-info');
 const toastEl = document.getElementById('toast');
+const filterCategoryEl = document.getElementById('filter-category');
+const filterStatusEl = document.getElementById('filter-status');
+const addRemarksEl = document.getElementById('add-remarks');
+const remarksRowEl = document.getElementById('remarks-row');
+const editModalEl = document.getElementById('edit-link-modal');
+const editLinkForm = document.getElementById('edit-link-form');
+const editLinkIdEl = document.getElementById('edit-link-id');
+const editLinkUrlEl = document.getElementById('edit-link-url');
+const editLinkCategoryEl = document.getElementById('edit-link-category');
+const editLinkNoteEl = document.getElementById('edit-link-note');
+const editLinkCancelEl = document.getElementById('edit-link-cancel');
 
 let lastDownState = false;
+let filterCategory = 'all';
+let filterStatus = 'all';
 let linksCache = [];
 let currentPage = 1;
 let pageSize = Number(pageSizeEl?.value || 10);
@@ -32,7 +45,12 @@ function statusClass(status) {
 }
 
 async function fetchLinks() {
-  const response = await fetch('/links');
+  const params = new URLSearchParams();
+  if (filterCategory !== 'all') params.set('category', filterCategory);
+  if (filterStatus !== 'all') params.set('status', filterStatus);
+  const qs = params.toString();
+  const url = qs ? `/links?${qs}` : '/links';
+  const response = await fetch(url);
   if (!response.ok) {
     throw new Error('Failed to fetch links');
   }
@@ -51,6 +69,34 @@ async function markLinkChecked(id) {
   if (!response.ok) {
     throw new Error('Failed to mark link as checked');
   }
+}
+
+async function updateLink(id, body) {
+  const response = await fetch(`/links/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || 'Failed to update link');
+  }
+}
+
+function openEditModal(link) {
+  if (!editLinkIdEl || !editLinkUrlEl || !editLinkCategoryEl || !editLinkNoteEl || !editModalEl) return;
+  editLinkIdEl.value = String(link.id);
+  editLinkUrlEl.value = link.url || '';
+  editLinkCategoryEl.value = link.category || '';
+  editLinkNoteEl.value = link.note || '';
+  editModalEl.classList.remove('hidden');
+  editModalEl.setAttribute('aria-hidden', 'false');
+}
+
+function closeEditModal() {
+  if (!editModalEl) return;
+  editModalEl.classList.add('hidden');
+  editModalEl.setAttribute('aria-hidden', 'true');
 }
 
 function showToast(message) {
@@ -85,6 +131,10 @@ function renderTable(links) {
     urlAnchor.textContent = link.url;
     urlTd.appendChild(urlAnchor);
 
+    const categoryTd = document.createElement('td');
+    categoryTd.setAttribute('data-label', 'Group');
+    categoryTd.textContent = link.category || '-';
+
     const noteTd = document.createElement('td');
     noteTd.setAttribute('data-label', 'Note');
     noteTd.textContent = link.note || '-';
@@ -105,6 +155,12 @@ function renderTable(links) {
     actionTd.setAttribute('data-label', 'Actions');
     const actionGroup = document.createElement('div');
     actionGroup.className = 'action-group';
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'edit';
+    editBtn.textContent = 'Edit';
+    editBtn.addEventListener('click', () => openEditModal(link));
+    actionGroup.appendChild(editBtn);
 
     if (link.status === 'down') {
       const checkedBtn = document.createElement('button');
@@ -141,7 +197,7 @@ function renderTable(links) {
     actionGroup.appendChild(deleteBtn);
     actionTd.appendChild(actionGroup);
 
-    tr.append(urlTd, noteTd, statusTd, checkedTd, actionTd);
+    tr.append(urlTd, categoryTd, noteTd, statusTd, checkedTd, actionTd);
     tableBody.appendChild(tr);
   }
 }
@@ -210,20 +266,36 @@ async function refresh() {
   }
 }
 
+if (addRemarksEl && remarksRowEl) {
+  remarksRowEl.classList.add('hidden');
+  addRemarksEl.checked = false;
+  addRemarksEl.addEventListener('change', () => {
+    remarksRowEl.classList.toggle('hidden', !addRemarksEl.checked);
+  });
+}
+
 addLinkForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
   const urlsInput = document.getElementById('new-urls').value;
-  const note = document.getElementById('new-note').value.trim();
+  const category = document.getElementById('new-category')?.value;
+  const noteEl = document.getElementById('new-note');
+  const addRemarks = document.getElementById('add-remarks')?.checked;
+  const note = addRemarks && noteEl ? noteEl.value.trim() : '';
+
   const urls = [...new Set(urlsInput.split(/\r?\n|,/).map((value) => value.trim()).filter(Boolean))];
 
   if (urls.length === 0) return;
+  if (!category) {
+    window.alert('Please select a group.');
+    return;
+  }
 
   try {
     const response = await fetch('/links/bulk', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ urls, note })
+      body: JSON.stringify({ urls, note: note || undefined, category })
     });
 
     if (!response.ok) {
@@ -237,12 +309,32 @@ addLinkForm.addEventListener('submit', async (event) => {
     }
 
     addLinkForm.reset();
+    if (remarksRowEl) remarksRowEl.classList.add('hidden');
     await refresh();
   } catch (error) {
     console.error(error);
     window.alert(`Unable to add links.\n${error.message}`);
   }
 });
+
+function applyFilters() {
+  filterCategory = filterCategoryEl?.value || 'all';
+  filterStatus = filterStatusEl?.value || 'all';
+  currentPage = 1;
+}
+
+if (filterCategoryEl) {
+  filterCategoryEl.addEventListener('change', () => {
+    applyFilters();
+    refresh();
+  });
+}
+if (filterStatusEl) {
+  filterStatusEl.addEventListener('change', () => {
+    applyFilters();
+    refresh();
+  });
+}
 
 pageSizeEl.addEventListener('change', () => {
   pageSize = Number(pageSizeEl.value) || 10;
@@ -261,6 +353,36 @@ pageNextEl.addEventListener('click', () => {
   currentPage += 1;
   renderCurrentPage();
 });
+
+if (editLinkForm) {
+  editLinkForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const id = Number(editLinkIdEl?.value);
+    const url = editLinkUrlEl?.value?.trim();
+    const category = editLinkCategoryEl?.value?.trim() || null;
+    const note = editLinkNoteEl?.value?.trim() || null;
+    if (!id || !url) return;
+    try {
+      await updateLink(id, { url, note, category });
+      closeEditModal();
+      await refresh();
+      showToast('Link updated');
+    } catch (error) {
+      console.error(error);
+      window.alert(error.message || 'Unable to update link.');
+    }
+  });
+}
+
+if (editLinkCancelEl) {
+  editLinkCancelEl.addEventListener('click', closeEditModal);
+}
+
+if (editModalEl) {
+  editModalEl.addEventListener('click', (e) => {
+    if (e.target === editModalEl) closeEditModal();
+  });
+}
 
 refresh();
 setInterval(refresh, 30000);

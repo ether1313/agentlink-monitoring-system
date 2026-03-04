@@ -44,11 +44,36 @@
               required
             ></textarea>
           </label>
-          <div class="form-row">
+          <label>
+            Group
+            <select id="new-category" required>
+              <option value="">— Select group —</option>
+              <option value="ipay9">ipay9</option>
+              <option value="kingbet9">kingbet9</option>
+              <option value="bigpay77">bigpay77</option>
+              <option value="me99">me99</option>
+              <option value="rolex9">rolex9</option>
+              <option value="gucci9">gucci9</option>
+              <option value="bybid9">bybid9</option>
+              <option value="mrbean9">mrbean9</option>
+              <option value="pkm9">pkm9</option>
+              <option value="queen13">queen13</option>
+              <option value="micky9">micky9</option>
+              <option value="winnie777">winnie777</option>
+              <option value="ace96au">ace96au</option>
+            </select>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="add-remarks" />
+            Add remarks
+          </label>
+          <div class="form-row remarks-row hidden" id="remarks-row">
             <label>
               Remarks
               <input type="text" id="new-note" placeholder="Campaign note" />
             </label>
+          </div>
+          <div class="form-row">
             <button type="submit">Add Links</button>
           </div>
         </form>
@@ -56,10 +81,42 @@
 
       <section>
         <h2>Links</h2>
+        <div class="filters">
+          <label>
+            Group
+            <select id="filter-category">
+              <option value="all">All</option>
+              <option value="ipay9">ipay9</option>
+              <option value="kingbet9">kingbet9</option>
+              <option value="bigpay77">bigpay77</option>
+              <option value="me99">me99</option>
+              <option value="rolex9">rolex9</option>
+              <option value="gucci9">gucci9</option>
+              <option value="bybid9">bybid9</option>
+              <option value="mrbean9">mrbean9</option>
+              <option value="pkm9">pkm9</option>
+              <option value="queen13">queen13</option>
+              <option value="micky9">micky9</option>
+              <option value="winnie777">winnie777</option>
+              <option value="ace96au">ace96au</option>
+            </select>
+          </label>
+          <label>
+            Status
+            <select id="filter-status">
+              <option value="all">All</option>
+              <option value="healthy">Healthy</option>
+              <option value="down">Down</option>
+              <option value="warning">Warning</option>
+              <option value="unknown">Unknown</option>
+            </select>
+          </label>
+        </div>
         <table>
           <thead>
             <tr>
               <th>URL</th>
+              <th>Group</th>
               <th>Note</th>
               <th>Status</th>
               <th>Last Checked</th>
@@ -88,6 +145,47 @@
 
     <audio id="alarm-audio" src="/alarm.mp3" preload="auto"></audio>
     <div id="toast" class="toast hidden" role="status" aria-live="polite">Marked as healthy</div>
+
+    <div id="edit-link-modal" class="modal-overlay hidden" aria-hidden="true">
+      <div class="modal">
+        <h3>Edit Link</h3>
+        <form id="edit-link-form">
+          <input type="hidden" id="edit-link-id" />
+          <label>
+            URL
+            <input type="url" id="edit-link-url" required />
+          </label>
+          <label>
+            Group
+            <select id="edit-link-category">
+              <option value="">— Select group —</option>
+              <option value="ipay9">ipay9</option>
+              <option value="kingbet9">kingbet9</option>
+              <option value="bigpay77">bigpay77</option>
+              <option value="me99">me99</option>
+              <option value="rolex9">rolex9</option>
+              <option value="gucci9">gucci9</option>
+              <option value="bybid9">bybid9</option>
+              <option value="mrbean9">mrbean9</option>
+              <option value="pkm9">pkm9</option>
+              <option value="queen13">queen13</option>
+              <option value="micky9">micky9</option>
+              <option value="winnie777">winnie777</option>
+              <option value="ace96au">ace96au</option>
+            </select>
+          </label>
+          <label>
+            Remarks
+            <input type="text" id="edit-link-note" placeholder="Optional" />
+          </label>
+          <div class="modal-actions">
+            <button type="button" id="edit-link-cancel">Cancel</button>
+            <button type="submit">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script src="/app.js"></script>
   </body>
 </html>
