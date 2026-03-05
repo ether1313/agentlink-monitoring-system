@@ -2,6 +2,7 @@ const tableBody = document.getElementById('links-table-body');
 const totalLinksEl = document.getElementById('total-links');
 const healthyLinksEl = document.getElementById('healthy-links');
 const downLinksEl = document.getElementById('down-links');
+const warningLinksEl = document.getElementById('warning-links');
 const downAlertEl = document.getElementById('down-alert');
 const addLinkForm = document.getElementById('add-link-form');
 const alarmAudio = document.getElementById('alarm-audio');
@@ -206,10 +207,12 @@ function renderStats(links) {
   const total = links.length;
   const healthy = links.filter((l) => l.status === 'healthy').length;
   const down = links.filter((l) => l.status === 'down').length;
+  const warning = links.filter((l) => l.status === 'warning').length;
 
   totalLinksEl.textContent = String(total);
   healthyLinksEl.textContent = String(healthy);
   downLinksEl.textContent = String(down);
+  if (warningLinksEl) warningLinksEl.textContent = String(warning);
 
   const hasDown = down > 0;
   downAlertEl.classList.toggle('hidden', !hasDown);
