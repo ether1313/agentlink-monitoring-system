@@ -3,6 +3,7 @@ const totalLinksEl = document.getElementById('total-links');
 const healthyLinksEl = document.getElementById('healthy-links');
 const downLinksEl = document.getElementById('down-links');
 const warningLinksEl = document.getElementById('warning-links');
+const unknownLinksEl = document.getElementById('unknown-links');
 const downAlertEl = document.getElementById('down-alert');
 const addLinkForm = document.getElementById('add-link-form');
 const alarmAudio = document.getElementById('alarm-audio');
@@ -208,11 +209,13 @@ function renderStats(links) {
   const healthy = links.filter((l) => l.status === 'healthy').length;
   const down = links.filter((l) => l.status === 'down').length;
   const warning = links.filter((l) => l.status === 'warning').length;
+  const unknown = links.filter((l) => l.status === 'unknown' || !l.status).length;
 
   totalLinksEl.textContent = String(total);
   healthyLinksEl.textContent = String(healthy);
   downLinksEl.textContent = String(down);
   if (warningLinksEl) warningLinksEl.textContent = String(warning);
+  if (unknownLinksEl) unknownLinksEl.textContent = String(unknown);
 
   const hasDown = down > 0;
   downAlertEl.classList.toggle('hidden', !hasDown);
