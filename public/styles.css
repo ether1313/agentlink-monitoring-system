@@ -116,15 +116,15 @@ header h1 {
 }
 
 #down-links {
-  color: #c91212;
+  color: #d71111;
 }
 
 #warning-links {
-  color: #b8b81e;
+  color: #ffcc00;
 }
 
 #unknown-links {
-  color: #FFA500;
+  color: #cc3300;
 }
 
 .form-section {
