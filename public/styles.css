@@ -111,6 +111,22 @@ header h1 {
   color: var(--blue);
 }
 
+#healthy-links {
+  color: #00FF00;
+}
+
+#down-links {
+  color: #FF0000;
+}
+
+#warning-links {
+  color: #FFFF00;
+}
+
+#unknown-links {
+  color: #FFA500;
+}
+
 .form-section {
   background: var(--panel);
   border: 1px solid var(--line);
