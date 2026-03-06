@@ -112,15 +112,15 @@ header h1 {
 }
 
 #healthy-links {
-  color: #00FF00;
+  color: #34b434;
 }
 
 #down-links {
-  color: #FF0000;
+  color: #c91212;
 }
 
 #warning-links {
-  color: #FFFF00;
+  color: #b8b81e;
 }
 
 #unknown-links {
